@@ -159,7 +159,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     
     _today = [self.gregorian dateBySettingHour:0 minute:0 second:0 ofDate:[NSDate date] options:0];
     _currentPage = [self.gregorian fs_firstDayOfMonth:_today];
-    
+    if (!_currentPage){
+        _currentPage = [NSDate date];
+    }
     
     _minimumDate = [self.formatter dateFromString:@"1970-01-01"];
     _maximumDate = [self.formatter dateFromString:@"2099-12-31"];
