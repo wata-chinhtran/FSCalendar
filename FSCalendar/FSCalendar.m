@@ -145,7 +145,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 }
 
 - (void)initialize
-{   
+{
     _appearance = [[FSCalendarAppearance alloc] init];
     _appearance.calendar = self;
     
@@ -482,7 +482,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             [collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
         }
     }
-    if (![_selectedDates containsObject:selectedDate]) {
+    if (![self checkExistSelectedDate:selectedDate]) {
         cell.selected = YES;
         [cell performSelecting];
     }
@@ -1040,7 +1040,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 - (void)deselectDate:(NSDate *)date
 {
     date = [self.gregorian dateBySettingHour:0 minute:0 second:0 ofDate:date options:0];
-    if (![_selectedDates containsObject:date]) {
+    if (![self checkExistSelectedDate:date]) {
         return;
     }
     [_selectedDates removeObject:date];
@@ -1241,7 +1241,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 
 - (BOOL)isDateSelected:(NSDate *)date
 {
-    return [_selectedDates containsObject:date] || [_collectionView.indexPathsForSelectedItems containsObject:[self.calculator indexPathForDate:date]];
+    return [self checkExistSelectedDate:date] || [_collectionView.indexPathsForSelectedItems containsObject:[self.calculator indexPathForDate:date]];
 }
 
 - (BOOL)isDateInDifferentPage:(NSDate *)date
@@ -1385,7 +1385,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     cell.numberOfEvents = [self.dataSourceProxy calendar:self numberOfEventsForDate:date];
     cell.titleLabel.text = [self.dataSourceProxy calendar:self titleForDate:date] ?: @([self.gregorian component:NSCalendarUnitDay fromDate:date]).stringValue;
     cell.subtitle  = [self.dataSourceProxy calendar:self subtitleForDate:date];
-    cell.selected = [_selectedDates containsObject:date];
+    cell.selected = [self checkExistSelectedDate:date];
     cell.dateIsToday = self.today?[self.gregorian isDate:date inSameDayAsDate:self.today]:NO;
     cell.weekend = [self.gregorian isDateInWeekend:date];
     cell.monthPosition = [self.calculator monthPositionForIndexPath:indexPath];
@@ -1459,7 +1459,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     }
     if (cell) {
         cell.selected = YES;
-        if (self.collectionView.allowsMultipleSelection) {   
+        if (self.collectionView.allowsMultipleSelection) {
             [self.collectionView selectItemAtIndexPath:[self.collectionView indexPathForCell:cell] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
         }
     }
@@ -1490,9 +1490,19 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     if (!self.allowsMultipleSelection) {
         [_selectedDates removeAllObjects];
     }
-    if (![_selectedDates containsObject:date]) {
+    if (![self checkExistSelectedDate:date]) {
         [_selectedDates addObject:date];
     }
+}
+
+- (BOOL)checkExistSelectedDate:(NSDate*)date{
+    for (NSDate* sDate in _selectedDates) {
+        if ([sDate isEqualToDate:date]) {
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 - (NSArray *)visibleStickyHeaders
